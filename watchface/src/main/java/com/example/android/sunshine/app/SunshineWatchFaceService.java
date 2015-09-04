@@ -29,6 +29,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.SurfaceHolder;
@@ -43,8 +44,8 @@ import java.util.concurrent.TimeUnit;
  * Digital watch face with seconds. In ambient mode, the seconds aren't displayed. On devices with
  * low-bit ambient mode, the text is drawn without anti-aliasing in ambient mode.
  */
-public class SunshineWatchFace extends CanvasWatchFaceService {
-    private static String TAG = SunshineWatchFace.class.getSimpleName();
+public class SunshineWatchFaceService extends CanvasWatchFaceService {
+    private static String TAG = SunshineWatchFaceService.class.getSimpleName();
 
     private static final Typeface NORMAL_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
@@ -105,12 +106,12 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
 
-            setWatchFaceStyle(new WatchFaceStyle.Builder(SunshineWatchFace.this)
+            setWatchFaceStyle(new WatchFaceStyle.Builder(SunshineWatchFaceService.this)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setShowSystemUiTime(false)
                     .build());
-            Resources resources = SunshineWatchFace.this.getResources();
+            Resources resources = SunshineWatchFaceService.this.getResources();
             mYOffset = resources.getDimension(R.dimen.digital_y_offset);
             mYOffsetDate = resources.getDimension(R.dimen.digital_y_offset_date);
 
@@ -178,7 +179,7 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             }
             mRegisteredTimeZoneReceiver = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
-            SunshineWatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
+            SunshineWatchFaceService.this.registerReceiver(mTimeZoneReceiver, filter);
         }
 
         private void unregisterReceiver() {
@@ -186,7 +187,7 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
                 return;
             }
             mRegisteredTimeZoneReceiver = false;
-            SunshineWatchFace.this.unregisterReceiver(mTimeZoneReceiver);
+            SunshineWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
         }
 
         @Override
@@ -194,7 +195,7 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
             super.onApplyWindowInsets(insets);
 
             // Load resources that have alternate values for round watches.
-            Resources resources = SunshineWatchFace.this.getResources();
+            Resources resources = SunshineWatchFaceService.this.getResources();
             boolean isRound = insets.isRound();
             mXOffset = resources.getDimension(isRound
                     ? R.dimen.digital_x_offset_round : R.dimen.digital_x_offset);
@@ -256,7 +257,65 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
                     : String.format("%d:%02d:%02d", hour, minute, second);
             canvas.drawText(text, mXOffset, mYOffset, mTextPaint);
 
-            int day = mCalendar.get(Calendar.DAY_OF_WEEK);
+            String dayOfWeekString = getDayOfWeekString(mCalendar.get(Calendar.DAY_OF_WEEK));
+            String monthOfYearString = getMonthOfYearString(mCalendar.get(Calendar.MONTH));
+
+            int dayOfMonth = mCalendar.get(Calendar.DAY_OF_MONTH);
+            int year = mCalendar.get(Calendar.YEAR);
+
+            String dateText = String.format("%s, %s %d, %d", dayOfWeekString, monthOfYearString, dayOfMonth, year);
+
+            canvas.drawText(dateText, mXOffset, mYOffsetDate, mTextDatePaint);
+        }
+
+        @NonNull
+        private String getMonthOfYearString(int monthOfYear) {
+            String monthOfYearString;
+            switch(monthOfYear) {
+                case Calendar.JANUARY:
+                    monthOfYearString = getResources().getString(R.string.january);
+                    break;
+                case Calendar.FEBRUARY:
+                    monthOfYearString = getResources().getString(R.string.february);
+                    break;
+                case Calendar.MARCH:
+                    monthOfYearString = getResources().getString(R.string.march);
+                    break;
+                case Calendar.APRIL:
+                    monthOfYearString = getResources().getString(R.string.april);
+                    break;
+                case Calendar.MAY:
+                    monthOfYearString = getResources().getString(R.string.may);
+                    break;
+                case Calendar.JUNE:
+                    monthOfYearString = getResources().getString(R.string.june);
+                    break;
+                case Calendar.JULY:
+                    monthOfYearString = getResources().getString(R.string.july);
+                    break;
+                case Calendar.AUGUST:
+                    monthOfYearString = getResources().getString(R.string.august);
+                    break;
+                case Calendar.SEPTEMBER:
+                    monthOfYearString = getResources().getString(R.string.september);
+                    break;
+                case Calendar.OCTOBER:
+                    monthOfYearString = getResources().getString(R.string.october);
+                    break;
+                case Calendar.NOVEMBER:
+                    monthOfYearString = getResources().getString(R.string.november);
+                    break;
+                case Calendar.DECEMBER:
+                    monthOfYearString = getResources().getString(R.string.december);
+                    break;
+                default:
+                    monthOfYearString = "";
+            }
+            return monthOfYearString;
+        }
+
+        @NonNull
+        private String getDayOfWeekString(int day) {
             String dayOfWeekString;
             switch (day) {
                 case Calendar.SUNDAY:
@@ -283,13 +342,7 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
                 default:
                     dayOfWeekString = "";
             }
-
-            int dayOfMonth = mCalendar.get(Calendar.DAY_OF_MONTH);
-            int year = mCalendar.get(Calendar.YEAR);
-
-            String dateText = String.format("%s, Month %d, %d", dayOfWeekString, dayOfMonth, year);
-
-            canvas.drawText(dateText, mXOffset, mYOffsetDate, mTextDatePaint);
+            return dayOfWeekString;
         }
 
         /**
@@ -326,15 +379,15 @@ public class SunshineWatchFace extends CanvasWatchFaceService {
     }
 
     private static class EngineHandler extends Handler {
-        private final WeakReference<SunshineWatchFace.Engine> mWeakReference;
+        private final WeakReference<SunshineWatchFaceService.Engine> mWeakReference;
 
-        public EngineHandler(SunshineWatchFace.Engine reference) {
+        public EngineHandler(SunshineWatchFaceService.Engine reference) {
             mWeakReference = new WeakReference<>(reference);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            SunshineWatchFace.Engine engine = mWeakReference.get();
+            SunshineWatchFaceService.Engine engine = mWeakReference.get();
             if (engine != null) {
                 switch (msg.what) {
                     case MSG_UPDATE_TIME:
