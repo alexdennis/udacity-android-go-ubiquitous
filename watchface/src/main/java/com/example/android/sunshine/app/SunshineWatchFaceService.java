@@ -112,7 +112,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             super.onCreate(holder);
 
             setWatchFaceStyle(new WatchFaceStyle.Builder(SunshineWatchFaceService.this)
-                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
+                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setShowSystemUiTime(false)
                     .build());
@@ -209,7 +209,8 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
                     ? R.dimen.digital_time_x_offset_round : R.dimen.digital_time_x_offset);
             mXOffsetDate = resources.getDimension(isRound
                     ? R.dimen.digital_date_x_offset_round : R.dimen.digital_date_x_offset);
-            mXOffsetTimeAmbient = resources.getDimension(R.dimen.digital_time_x_offset_ambient);
+            mXOffsetTimeAmbient = resources.getDimension(isRound
+                    ? R.dimen.digital_time_x_offset_round_ambient : R.dimen.digital_time_x_offset_ambient);
             float timeTextSize = resources.getDimension(isRound
                     ? R.dimen.digital_time_text_size_round : R.dimen.digital_time_text_size);
             float dateTextSize = resources.getDimension(isRound
@@ -268,7 +269,11 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             String text = mAmbient
                     ? String.format("%d:%02d", hour, minute)
                     : String.format("%d:%02d:%02d", hour, minute, second);
-            canvas.drawText(text, bounds.centerX() - (mAmbient ? mXOffsetTimeAmbient : mXOffsetTime), mYOffset, mTextPaint);
+            float xOffsetTime = mTextPaint.measureText(text) / 2;
+            canvas.drawText(text, bounds.centerX() - xOffsetTime, mYOffset, mTextPaint);
+
+            // Decide which paint to user for the next bits dependent on ambient mode.
+            Paint datePaint = mAmbient ? mTextDatePaintAmbient : mTextDatePaint;
 
             // Draw the date
             String dayOfWeekString = getDayOfWeekString(mCalendar.get(Calendar.DAY_OF_WEEK));
@@ -278,12 +283,12 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             int year = mCalendar.get(Calendar.YEAR);
 
             String dateText = String.format("%s, %s %d %d", dayOfWeekString, monthOfYearString, dayOfMonth, year);
-            canvas.drawText(dateText, bounds.centerX() - mXOffsetDate, mYOffset + mLineHeight, mAmbient ? mTextDatePaintAmbient : mTextDatePaint);
+            float xOffsetDate = datePaint.measureText(dateText) / 2;
+            canvas.drawText(dateText, bounds.centerX() - xOffsetDate, mYOffset + mLineHeight, datePaint);
 
             // Draw a line to separate date and time from weather elements
             float lineYOffset = mYOffset + mLineHeight * 2;
-            float lineXOffsetFromCenter = 50;
-            canvas.drawLine(bounds.centerX() - lineXOffsetFromCenter, lineYOffset, bounds.centerX() + lineXOffsetFromCenter, lineYOffset, mAmbient ? mTextDatePaintAmbient : mTextDatePaint);
+            canvas.drawLine(bounds.centerX() - 50, lineYOffset, bounds.centerX() + 50, lineYOffset, datePaint);
 
         }
 
