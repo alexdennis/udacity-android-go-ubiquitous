@@ -132,17 +132,10 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
 
         private Calendar mCalendar;
 
-        float mXOffsetTime;
-        float mXOffsetDate;
-        float mXOffsetTimeAmbient;
-
         float mTimeYOffset;
         float mDateYOffset;
         float mDividerYOffset;
         float mWeatherYOffset;
-
-        float mLineHeight;
-
 
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
@@ -161,11 +154,6 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
                     .build());
             Resources resources = SunshineWatchFaceService.this.getResources();
             mTimeYOffset = resources.getDimension(R.dimen.digital_time_y_offset);
-            mDateYOffset = resources.getDimension(R.dimen.digital_date_y_offset);
-            mDividerYOffset = resources.getDimension(R.dimen.digital_divider_y_offset);
-            mWeatherYOffset = resources.getDimension(R.dimen.digital_weather_y_offset);
-
-            mLineHeight = resources.getDimension(R.dimen.digital_line_height);
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(resources.getColor(R.color.digital_background));
@@ -245,12 +233,14 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             // Load resources that have alternate values for round watches.
             Resources resources = SunshineWatchFaceService.this.getResources();
             boolean isRound = insets.isRound();
-            mXOffsetTime = resources.getDimension(isRound
-                    ? R.dimen.digital_time_x_offset_round : R.dimen.digital_time_x_offset);
-            mXOffsetDate = resources.getDimension(isRound
-                    ? R.dimen.digital_date_x_offset_round : R.dimen.digital_date_x_offset);
-            mXOffsetTimeAmbient = resources.getDimension(isRound
-                    ? R.dimen.digital_time_x_offset_round_ambient : R.dimen.digital_time_x_offset_ambient);
+
+            mDateYOffset = resources.getDimension(isRound
+                    ? R.dimen.digital_date_y_offset_round : R.dimen.digital_date_y_offset);
+            mDividerYOffset = resources.getDimension(isRound
+                    ? R.dimen.digital_divider_y_offset_round : R.dimen.digital_divider_y_offset);
+            mWeatherYOffset = resources.getDimension(isRound
+                    ? R.dimen.digital_weather_y_offset_round : R.dimen.digital_weather_y_offset);
+
             float timeTextSize = resources.getDimension(isRound
                     ? R.dimen.digital_time_text_size_round : R.dimen.digital_time_text_size);
             float dateTextSize = resources.getDimension(isRound
@@ -453,7 +443,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
 
         public void requestWeatherInfo() {
             PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(WEATHER_PATH);
-            putDataMapRequest.getDataMap().putString("uuid", UUID.randomUUID().toString());
+            putDataMapRequest.getDataMap().putString(KEY_UUID, UUID.randomUUID().toString());
             PutDataRequest request = putDataMapRequest.asPutDataRequest();
 
             Wearable.DataApi.putDataItem(mGoogleApiClient, request)
