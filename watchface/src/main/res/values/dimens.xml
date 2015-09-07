@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="digital_time_text_size">40dp</dimen>
-    <dimen name="digital_time_text_size_round">45dp</dimen>
+    <dimen name="digital_time_text_size_round">47dp</dimen>
     <dimen name="digital_date_text_size">15dp</dimen>
-    <dimen name="digital_date_text_size_round">20dp</dimen>
+    <dimen name="digital_date_text_size_round">16dp</dimen>
     <dimen name="digital_temp_text_size">25dp</dimen>
-    <dimen name="digital_temp_text_size_round">30dp</dimen>
+    <dimen name="digital_temp_text_size_round">27dp</dimen>
 
     <dimen name="digital_time_y_offset">90dp</dimen>
     <dimen name="digital_date_y_offset">110dp</dimen>
