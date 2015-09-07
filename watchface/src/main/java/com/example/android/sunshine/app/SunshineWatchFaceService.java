@@ -336,18 +336,23 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             float xOffsetDate = datePaint.measureText(dateText) / 2;
             canvas.drawText(dateText, bounds.centerX() - xOffsetDate, mDateYOffset, datePaint);
 
-            // Draw a line to separate date and time from weather elements
-            canvas.drawLine(bounds.centerX() - 20, mDividerYOffset, bounds.centerX() + 20, mDividerYOffset, datePaint);
-
             // Draw high and low temp if we have it
-            if (mWeatherHigh != null && mWeatherLow != null) {
-                float xOffSet = mTextTempHighPaint.measureText(mWeatherHigh) / 2;
-                canvas.drawText(mWeatherHigh, bounds.centerX() - xOffSet, mWeatherYOffset, mTextTempHighPaint);
-                canvas.drawText(mWeatherLow, bounds.centerX() + xOffSet + 20, mWeatherYOffset, mAmbient ? mTextTempLowAmbientPaint : mTextTempLowPaint);
+            if (mWeatherHigh != null && mWeatherLow != null && mWeatherIcon != null) {
+                // Draw a line to separate date and time from weather elements
+                canvas.drawLine(bounds.centerX() - 20, mDividerYOffset, bounds.centerX() + 20, mDividerYOffset, datePaint);
 
-                // Draw weather icon if not in ambient and we have an icon
-                if (!mAmbient && mWeatherIcon != null) {
-                    float iconXOffset = bounds.centerX() - (xOffSet + mWeatherIcon.getWidth() + 30);
+                float highTextLen = mTextTempHighPaint.measureText(mWeatherHigh);
+
+                if (mAmbient) {
+                    float lowTextLen = mTextTempLowAmbientPaint.measureText(mWeatherLow);
+                    float xOffset = bounds.centerX() - ((highTextLen + lowTextLen + 20) / 2);
+                    canvas.drawText(mWeatherHigh, xOffset, mWeatherYOffset, mTextTempHighPaint);
+                    canvas.drawText(mWeatherLow, xOffset + highTextLen + 20, mWeatherYOffset, mTextTempLowAmbientPaint);
+                } else {
+                    float xOffset = bounds.centerX() - (highTextLen / 2);
+                    canvas.drawText(mWeatherHigh, xOffset, mWeatherYOffset, mTextTempHighPaint);
+                    canvas.drawText(mWeatherLow, bounds.centerX() + (highTextLen / 2) + 20, mWeatherYOffset, mTextTempLowPaint);
+                    float iconXOffset = bounds.centerX() - ((highTextLen / 2) + mWeatherIcon.getWidth() + 30);
                     canvas.drawBitmap(mWeatherIcon, iconXOffset, mWeatherYOffset - mWeatherIcon.getHeight(), null);
                 }
             }
