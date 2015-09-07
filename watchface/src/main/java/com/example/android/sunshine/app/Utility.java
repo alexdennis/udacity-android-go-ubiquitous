@@ -131,4 +131,9 @@ public class Utility {
 
         return "";
     }
+
+    public static String getAmPmString(Resources resources, int am_pm) {
+        return am_pm == Calendar.AM ?
+                resources.getString(R.string.am) : resources.getString(R.string.pm);
+    }
 }

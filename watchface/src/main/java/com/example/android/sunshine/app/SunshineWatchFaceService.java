@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
@@ -303,21 +304,42 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             long now = System.currentTimeMillis();
             mCalendar.setTimeInMillis(now);
 
-            int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
+            boolean is24Hour = DateFormat.is24HourFormat(SunshineWatchFaceService.this);
             int minute = mCalendar.get(Calendar.MINUTE);
             int second = mCalendar.get(Calendar.SECOND);
+            int am_pm  = mCalendar.get(Calendar.AM_PM);
 
-            String text = String.format("%d:%02d", hour, minute);
+            String timeText;
+            if (is24Hour) {
+                int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
+                timeText = String.format("%02d:%02d", hour, minute);
+            } else {
+                int hour = mCalendar.get(Calendar.HOUR);
+                if (hour == 0) {
+                    hour = 12;
+                }
+                timeText = String.format("%d:%02d", hour, minute);
+            }
+
             String secondsText = String.format("%02d", second);
-            float timeTextLen = mTextTimePaint.measureText(text);
+            String amPmText = Utility.getAmPmString(getResources(), am_pm);
+            float timeTextLen = mTextTimePaint.measureText(timeText);
             float xOffsetTime = timeTextLen / 2;
-            if (!mAmbient) {
+            if (mAmbient) {
+                if (!is24Hour) {
+                    xOffsetTime = xOffsetTime + (mTextTimeSecondsPaint.measureText(amPmText) / 2);
+                }
+            } else {
                 xOffsetTime = xOffsetTime + (mTextTimeSecondsPaint.measureText(secondsText) / 2);
             }
             float xOffsetTimeFromCenter = bounds.centerX() - xOffsetTime;
-            canvas.drawText(text, xOffsetTimeFromCenter, mTimeYOffset, mTextTimePaint);
-            if (!mAmbient) {
-                canvas.drawText(secondsText, xOffsetTimeFromCenter + timeTextLen, mTimeYOffset, mTextTimeSecondsPaint);
+            canvas.drawText(timeText, xOffsetTimeFromCenter, mTimeYOffset, mTextTimePaint);
+            if (mAmbient) {
+                if (!is24Hour) {
+                    canvas.drawText(amPmText, xOffsetTimeFromCenter + timeTextLen + 5, mTimeYOffset, mTextTimeSecondsPaint);
+                }
+            } else {
+                canvas.drawText(secondsText, xOffsetTimeFromCenter + timeTextLen + 5, mTimeYOffset, mTextTimeSecondsPaint);
             }
 
             // Decide which paint to user for the next bits dependent on ambient mode.

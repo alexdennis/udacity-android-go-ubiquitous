@@ -2,6 +2,9 @@
     <string name="app_name">Watchface</string>
     <string name="my_digital_name">Sunshine</string>
 
+    <string name="am">AM</string>
+    <string name="pm">PM</string>
+
     <string name="sunday">SUN</string>
     <string name="monday">MON</string>
     <string name="tuesday">TUE</string>
